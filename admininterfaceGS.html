@@ -1,0 +1,267 @@
+<html><head><base href="https://websimengine.com/job-form/">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tableau de Bord Administrateur</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #DAF0DD;
+  min-height: 100vh;
+}
+
+header {
+  background-color: #064C1C;
+  color: white;
+  padding: 15px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.dashboard {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.stats {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+
+.stats p {
+  font-size: 18px;
+  color: #064C1C;
+  margin: 0;
+  font-weight: bold;
+}
+
+.search-bar {
+  display: flex;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+
+.search-bar input {
+  flex: 1;
+  padding: 12px;
+  border: 2px solid #5BA8FF;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.search-bar input:focus {
+  outline: none;
+  border-color: #F68634;
+  box-shadow: 0 0 0 3px rgba(246, 134, 52, 0.2);
+}
+
+.search-bar button {
+  background-color: #F68634;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  cursor: pointer;
+  border-radius: 8px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.search-bar button:hover {
+  background-color: #EB4E1E;
+  transform: translateY(-2px);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+table th, table td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+table th {
+  background-color: #064C1C;
+  color: white;
+  font-weight: 600;
+}
+
+table tr:hover {
+  background-color: #f8f9fa;
+}
+
+.actions button {
+  background-color: #5BA8FF;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.actions button:hover {
+  background-color: #4a8cd9;
+  transform: translateY(-1px);
+}
+
+.document-link {
+  color: #5BA8FF;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.document-link:hover {
+  text-decoration: underline;
+}
+
+.candidate-photo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+</style>
+</head>
+<body>
+  <header>
+    <h1>Gestion des Candidatures</h1>
+  </header>
+
+  <section class="dashboard">
+    <div class="stats">
+      <p>Total des Candidatures : <span id="total-candidatures">0</span></p>
+    </div>
+
+    <div class="search-bar">
+      <input type="text" id="search-input" placeholder="Rechercher par nom, domaine, email...">
+      <button onclick="searchCandidates()">
+        <i class="fas fa-search"></i> Rechercher
+      </button>
+    </div>
+
+    <table id="candidates-table">
+      <thead>
+        <tr>
+          <th>Photo</th>
+          <th>Nom</th>
+          <th>Post-nom</th>
+          <th>Email</th>
+          <th>Téléphone</th>
+          <th>Domaine</th>
+          <th>Documents</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="candidates-list">
+      </tbody>
+    </table>
+  </section>
+
+  <script>
+    const candidates = [
+      {
+        nom: "Dupont",
+        postNom: "Jean",
+        dateNaissance: "1980-05-12",
+        lieu: "Kinshasa",
+        adressePhysique: "123 rue de l'Indépendance",
+        telephone: "+243 812345678",
+        email: "jean.dupont@example.com",
+        niveauEtude: "Master",
+        domaineTravail: "Informatique",
+        photo: "https://websimengine.com/assets/profile1.jpg",
+        cv: "https://websimengine.com/documents/cv1.pdf",
+        carteONEM: "https://websimengine.com/documents/onem1.pdf",
+        docInspection: "https://websimengine.com/documents/inspection1.pdf"
+      },
+      {
+        nom: "Muller",
+        postNom: "Marie",
+        dateNaissance: "1992-08-15",
+        lieu: "Lubumbashi",
+        adressePhysique: "45 avenue de la Paix",
+        telephone: "+243 998765432",
+        email: "marie.muller@example.com",
+        niveauEtude: "Licence",
+        domaineTravail: "Marketing",
+        photo: "https://websimengine.com/assets/profile2.jpg",
+        cv: "https://websimengine.com/documents/cv2.pdf",
+        carteONEM: "https://websimengine.com/documents/onem2.pdf",
+        docInspection: "https://websimengine.com/documents/inspection2.pdf"
+      }
+    ];
+
+    document.getElementById("total-candidatures").innerText = candidates.length;
+
+    function displayCandidates(list) {
+      const tableBody = document.getElementById("candidates-list");
+      tableBody.innerHTML = "";
+
+      list.forEach((candidate, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td><img src="${candidate.photo}" alt="Photo" class="candidate-photo"></td>
+          <td>${candidate.nom}</td>
+          <td>${candidate.postNom}</td>
+          <td>${candidate.email}</td>
+          <td>${candidate.telephone}</td>
+          <td>${candidate.domaineTravail}</td>
+          <td>
+            <a href="${candidate.cv}" class="document-link" target="_blank">CV</a> |
+            <a href="${candidate.carteONEM}" class="document-link" target="_blank">ONEM</a> |
+            <a href="${candidate.docInspection}" class="document-link" target="_blank">Inspection</a>
+          </td>
+          <td class="actions">
+            <button onclick="viewDetails(${index})">Voir Détails</button>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    displayCandidates(candidates);
+
+    function searchCandidates() {
+      const searchInput = document.getElementById("search-input").value.toLowerCase();
+      const filteredCandidates = candidates.filter(candidate =>
+        Object.values(candidate).some(value =>
+          value.toString().toLowerCase().includes(searchInput)
+        )
+      );
+      displayCandidates(filteredCandidates);
+    }
+
+    function viewDetails(index) {
+      const candidate = candidates[index];
+      const details = `
+        Détails du Candidat:
+        Nom complet: ${candidate.nom} ${candidate.postNom}
+        Date de naissance: ${candidate.dateNaissance}
+        Lieu: ${candidate.lieu}
+        Adresse: ${candidate.adressePhysique}
+        Contact: ${candidate.telephone}
+        Email: ${candidate.email}
+        Niveau d'étude: ${candidate.niveauEtude}
+        Domaine: ${candidate.domaineTravail}
+      `;
+      alert(details);
+    }
+  </script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</body></html>
